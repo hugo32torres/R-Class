@@ -1,0 +1,120 @@
+install.packages("dplyr") 
+install.packages("tidyr") 
+install.packages("readxl")
+
+library(readxl)
+dataset <- read_excel(NULL)
+View(dataset)
+
+
+library(readxl)
+base1 <- read_excel("C:/Users/Ingenieria/Desktop/Nueva carpeta/base1.xlsx")
+View(base1)
+
+library(readxl)
+base2 <- read_excel("C:/Users/Ingenieria/Desktop/Nueva carpeta/base2.xlsx")
+View(base2)
+
+ba3 = merge(base1,base2, by = "id")
+
+library(dplyr)
+library(tidyr)
+library(readxl)
+
+b4= select(ba3, id, valor2, valor1)
+
+b5= select(ba3, -Estado)
+
+b6= select(ba3, id:situacion.x)
+
+b7=ba3 <- select(ba3, -nombre.y, -situacion.y)
+
+F1=filter(ba3, valor2>10000000)
+
+================================================================
+  
+  el signo $ me permite saber cuantos registros tengo por cada categoria
+
+table(ba3$pago.x)
+  
+F2=filter(ba3, pago.x == "SUCURSAL10" & valor1<500000)
+
+F3=filter(ba3, pago.x == "SUCURSAL10" | valor1<500000)
+
+F4=filter(ba3, situacion.x == "DIFICIL COBRO" & valor1<=valor2)
+
+
+ba3 = merge(base1,base2, by.x = "id", by.y = "id", all = T)
+
+ba4= select(ba3, -situacion.x)
+
+ba5=filter(ba4,!is.na(valor1))
+
+#Mutate crea nuevas columnas /a partir de un filtro hago una nueva columna
+
+ba5=filter(ba4,!is.na(valor1))
+
+ba5$V2V1=ba5$valor1 + ba5$valor2
+
+
+ba5=mutate(ba5, V1V2= valor1+valor2)
+
+#linea 57 y 60 hacen los mismo pero mutate lo hace de manera más eficiente
+
+
+
+K1=filter(ba4,!is.na(valor1))
+
+K2 <- mutate(K1, cambio.deuda = valor2-valor1,
+tipo.cambio = ifelse(cambio.deuda<0,"disminuyó", "aumentó"))
+
+
+ba3 = merge(base1,base2, by.x = "id", by.y = "id", all = T)
+
+ba4= select(ba3, -situacion.x)
+
+ba5=filter(ba4,!is.na(valor1))
+
+K2 <- mutate(ba5, cambio.deuda = valor2-valor1,
+             tipo.cambio = ifelse(cambio.deuda<0,"disminuyó", "aumentó"))
+
+#arrange permite organizar por una columna o por varias columnas en la forma en que
+#yo quiera de forma asc o desc
+
+
+
+k3 <- arrange(K2,cambio.deuda, valor2)
+
+====================================================================
+====================================================================
+  
+
+#La librería “dplyr”este operador permite hacer varias operaciones al mismo tiempo
+  
+
+ba3 = merge(base1,base2, by = "id", all.x = T) #left joint
+
+
+
+base3 <- select(ba3, -nombre.y, -situacion.y, -pago.y)
+base4 <- filter(base3, !is.na(valor2), !is.na(valor1))
+base4 <- mutate(base4, cambio.deuda = valor2-valor1)
+base4 <- mutate(base4, tipo.cambio = ifelse(cambio.deuda<0,"disminuyó", "aumentó"))
+base4 <- arrange(base4, desc(cambio.deuda))
+
+
+#aplico librería dplyr
+
+base <- ba3 %>% 
+  select(-nombre.y, -situacion.y, -pago.y) %>%
+  filter(!is.na(valor2), !is.na(valor1)) %>%
+  mutate(cambio.deuda=valor2-valor1, # añadir nuevas variables
+         tipo.cambio=ifelse(cambio.deuda<0,"disminuyó", "aumentó")) %>%
+  arrange(desc(valor2), desc(cambio.deuda))
+
+#Guardar información o ecportarla
+#guardo la información como Rdata o lo puedo cargar como CSV que es un simplificado de excel
+#lo puedo guardar como una base de texto o como un Excel, (sin embargo se guarda con un peso mayor)
+#si la quiero guardar le doy "save" si la quiero cargar "load"
+
+save(ba3, file="ba3.RData")
